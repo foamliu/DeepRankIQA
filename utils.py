@@ -3,9 +3,6 @@ import logging
 
 import torch
 
-from config import num_classes
-from mobilenet_v2 import MobileNetV2
-
 
 def clip_gradient(optimizer, grad_clip):
     """
@@ -120,14 +117,6 @@ def get_logger():
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
     return logger
-
-
-def load_model(model_file):
-    model = MobileNetV2(num_classes=num_classes)
-    state_dict = torch.load(model_file)
-    model.load_state_dict(state_dict)
-    model.to('cpu')
-    return model
 
 
 def ensure_folder(folder):
