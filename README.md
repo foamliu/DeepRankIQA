@@ -1,1 +1,1 @@
-# DeepRankIQA
+# DeepIQA
