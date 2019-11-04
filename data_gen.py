@@ -11,14 +11,14 @@ from config import image_folder
 # Just normalization for validation
 data_transforms = {
     'train': transforms.Compose([
-        transforms.Resize(256),
+        # transforms.Resize(256),
         transforms.RandomResizedCrop(224),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
     ]),
     'valid': transforms.Compose([
-        transforms.Resize(256),
+        # transforms.Resize(256),
         transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -38,15 +38,23 @@ class DeepIQADataset(Dataset):
 
     def __getitem__(self, i):
         sample = self.samples[i]
-        img_path = sample['img_path']
-        label = sample['label']
-        img_path = os.path.join(image_folder, img_path)
-        img = cv.imread(img_path)
-        img = img[..., ::-1]  # RGB
-        img = transforms.ToPILImage()(img)
-        img = self.transformer(img)
+        before = sample['before']
+        full_path = os.path.join(image_folder, before)
+        img_0 = cv.imread(full_path)
+        img_0 = img_0[..., ::-1]  # RGB
+        img_0 = transforms.ToPILImage()(img_0)
+        img_0 = self.transformer(img_0)
 
-        return img, label
+        after = sample['after']
+        full_path = os.path.join(image_folder, after)
+        img_1 = cv.imread(full_path)
+        img_1 = img_1[..., ::-1]  # RGB
+        img_1 = transforms.ToPILImage()(img_1)
+        img_1 = self.transformer(img_1)
+
+        target = -1  # the second input should be ranked higher
+
+        return img_0, img_1, target
 
     def __len__(self):
         return len(self.samples)
