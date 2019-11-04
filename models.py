@@ -2,7 +2,7 @@ from torch import nn
 from torchsummary import summary
 from torchvision import models
 
-from config import device, num_classes
+from config import device
 
 
 class DeepIQAModel(nn.Module):
@@ -12,7 +12,7 @@ class DeepIQAModel(nn.Module):
         # Remove linear layer
         modules = list(resnet.children())[:-1]
         self.resnet = nn.Sequential(*modules)
-        self.fc = nn.Linear(2048, num_classes)
+        self.fc = nn.Linear(2048, 1)
 
     def forward(self, images):
         x = self.resnet(images)  # [N, 2048, 1, 1]

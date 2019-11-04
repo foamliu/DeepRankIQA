@@ -3,14 +3,11 @@ import torch
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  # sets device for model and PyTorch tensors
 
 im_size = 224
-num_classes = 2
 
 num_samples = 90679
 num_train = 89679
 num_valid = 1000
-# image_folder = 'data/photo'
 image_folder = 'data/256x256'
-anno_file = 'data/koniq10k_scores_and_distributions.csv'
 data_file = 'data/data.pkl'
 
 

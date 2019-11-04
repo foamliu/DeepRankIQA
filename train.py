@@ -6,7 +6,6 @@ from torch.utils.tensorboard import SummaryWriter
 
 from config import device, grad_clip, print_freq, num_workers
 from data_gen import DeepIQADataset
-# from mobilenet_v2 import MobileNetV2
 from models import DeepIQAModel
 from utils import parse_args, save_checkpoint, AverageMeter, clip_gradient, get_logger, accuracy, get_learning_rate
 
@@ -22,8 +21,6 @@ def train_net(args):
 
     # Initialize / load checkpoint
     if checkpoint is None:
-        # model = MobileNetV2(num_classes=num_classes)
-        # model = MobileNetV2()
         model = DeepIQAModel()
         model = nn.DataParallel(model)
 
@@ -42,7 +39,7 @@ def train_net(args):
     model = model.to(device)
 
     # Loss function
-    criterion = nn.CrossEntropyLoss().to(device)
+    criterion = nn.MarginRankingLoss(margin=0.2).to(device)
 
     # Custom dataloaders
     train_dataset = DeepIQADataset('train')
@@ -102,17 +99,19 @@ def train(train_loader, model, criterion, optimizer, epoch, logger):
     accs = AverageMeter()
 
     # Batches
-    for i, (img, label) in enumerate(train_loader):
+    for i, (img_0, img_1, target) in enumerate(train_loader):
         # Move to GPU, if available
-        img = img.to(device)
-        label = label.to(device)
+        img_0 = img_0.to(device)
+        img_1 = img_1.to(device)
+        target = target.to(device)
 
         # Forward prop.
-        out = model(img)
+        x1 = model(img_0)
+        x2 = model(img_1)
 
         # Calculate loss
-        loss = criterion(out, label)
-        acc = accuracy(out, label)
+        loss = criterion(x1, x2, target)
+        acc = accuracy(x1, x2, target)
 
         # Back prop.
         optimizer.zero_grad()
@@ -150,17 +149,19 @@ def valid(valid_loader, model, criterion, logger):
     accs = AverageMeter()
 
     # Batches
-    for i, (img, label) in enumerate(valid_loader):
+    for i, (img_0, img_1, target) in enumerate(valid_loader):
         # Move to GPU, if available
-        img = img.to(device)
-        label = label.to(device)
+        img_0 = img_0.to(device)
+        img_1 = img_1.to(device)
+        target = target.to(device)
 
         # Forward prop.
-        out = model(img)
+        x1 = model(img_0)
+        x2 = model(img_1)
 
         # Calculate loss
-        loss = criterion(out, label)
-        acc = accuracy(out, label)
+        loss = criterion(x1, x2, target)
+        acc = accuracy(x1, x2, target)
 
         # Keep track of metrics
         losses.update(loss.item())

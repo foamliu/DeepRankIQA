@@ -92,10 +92,9 @@ def get_learning_rate(optimizer):
     return optimizer.param_groups[0]['lr']
 
 
-def accuracy(scores, targets, k=1):
-    batch_size = targets.size(0)
-    _, ind = scores.topk(k, 1, True, True)
-    correct = ind.eq(targets.view(-1, 1).expand_as(ind))
+def accuracy(x1, x2, target):
+    batch_size = x1.size(0)
+    correct = x1.lt(x2)
     correct_total = correct.view(-1).float().sum()  # 0D tensor
     return correct_total.item() * (100.0 / batch_size)
 
