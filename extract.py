@@ -9,4 +9,4 @@ def extract(filename):
 
 
 if __name__ == "__main__":
-    extract('data/koniq10k_224x224.zip')
+    extract('data/data.zip')
