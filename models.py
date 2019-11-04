@@ -13,11 +13,13 @@ class DeepIQAModel(nn.Module):
         modules = list(resnet.children())[:-1]
         self.resnet = nn.Sequential(*modules)
         self.fc = nn.Linear(2048, 1)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, images):
         x = self.resnet(images)  # [N, 2048, 1, 1]
         x = x.view(-1, 2048)  # [N, 2048]
         x = self.fc(x)
+        x = self.sigmoid(x)
         return x
 
 
