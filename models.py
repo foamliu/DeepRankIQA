@@ -1,9 +1,14 @@
-import torch.nn.functional as F
 from torch import nn
 from torchsummary import summary
 from torchvision import models
 
 from config import device
+
+
+class Flatten(nn.Module):
+    def forward(self, x):
+        batch_size = x.shape[0]
+        return x.view(batch_size, -1)
 
 
 class DeepIQAModel(nn.Module):
@@ -12,16 +17,16 @@ class DeepIQAModel(nn.Module):
         resnet = models.resnet50(pretrained=True)
         # Remove linear layer
         modules = list(resnet.children())[:-1]
-        self.resnet = nn.Sequential(*modules)
-        self.fc = nn.Linear(2048, 1)
-        self.sigmoid = nn.Sigmoid()
+        self.model = nn.Sequential(*modules,
+                                   Flatten(),
+                                   nn.Dropout(0.5),
+                                   nn.LeakyReLU(0.2, inplace=True),
+                                   nn.Linear(2048, 1),
+                                   nn.Sigmoid(),
+                                   )
 
     def forward(self, images):
-        x = self.resnet(images)  # [N, 2048, 1, 1]
-        x = x.view(-1, 2048)  # [N, 2048]
-        x = F.normalize(x)
-        x = self.fc(x)
-        x = self.sigmoid(x)
+        x = self.model(images)  # [N, 2048, 1, 1]
         return x
 
 
