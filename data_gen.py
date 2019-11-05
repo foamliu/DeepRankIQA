@@ -1,5 +1,6 @@
 import json
 import os
+import random
 
 import cv2 as cv
 from torch.utils.data import Dataset
@@ -52,9 +53,11 @@ class DeepIQADataset(Dataset):
         img_1 = transforms.ToPILImage()(img_1)
         img_1 = self.transformer(img_1)
 
-        target = -1  # the second input should be ranked higher
-
-        return img_0, img_1, target
+        # the second input should be ranked higher
+        if random.random() > 0.5:
+            return img_0, img_1, -1.
+        else:
+            return img_1, img_0, 1.
 
     def __len__(self):
         return len(self.samples)
