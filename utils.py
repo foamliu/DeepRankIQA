@@ -91,9 +91,14 @@ def get_learning_rate(optimizer):
 
 def accuracy(x1, x2, target):
     batch_size = x1.size(0)
-    correct = x1.lt(x2)
-    correct_total = correct.view(-1).float().sum()  # 0D tensor
-    return correct_total.item() * (100.0 / batch_size)
+    correct = []
+    for i in range(batch_size):
+        if target[i].item == 1.0 and x1[i].item() > x2[i].item() or \
+                target[i].item == -1.0 and x1[i].item() < x2[i].item():
+            correct += [1.0]
+
+    correct_total = sum(correct)
+    return correct_total * (100.0 / batch_size)
 
 
 def parse_args():
