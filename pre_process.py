@@ -1,11 +1,14 @@
 import json
 import pickle
 
+import numpy as np
+
 from config import num_train, data_file
 
 if __name__ == "__main__":
     with open(data_file, 'rb') as f:
         samples = pickle.load(f)
+    np.random.shuffle(samples)
 
     train = []
     valid = []
